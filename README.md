@@ -50,4 +50,8 @@ remote: Counting objects: 222826, done.
 ... ...
 ```
 
+## Download Binary
+
+https://github.com/holys/gitclone/releases
+
 JUST YET ANOTHER STUPID TOOL.
