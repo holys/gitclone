@@ -5,7 +5,7 @@ So, you have to set `GOPATH` first, then `gitclone` shall clone the <repo> to `$
 
 ## Installation
 
-    go install -o gitclone main.go
+    go get github.com/holys/gitclone
 
 ## Features
 
