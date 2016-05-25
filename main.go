@@ -1,7 +1,9 @@
 package main
 
 import (
+	"errors"
 	"fmt"
+	"go/build"
 	"net/url"
 	"os"
 	"os/exec"
@@ -30,6 +32,20 @@ func prepare(input string) (repo, path string) {
 	return repo, path
 }
 
+func getFirstDir(gopath string) (string, error) {
+	buildContext := build.Default
+	list := filepath.SplitList(buildContext.GOPATH)
+	if len(list) == 0 {
+		return "", errors.New("no gopath set")
+	}
+	// Guard against people setting GOPATH=$GOROOT.
+	if list[0] == buildContext.GOROOT {
+		return "", errors.New("gopath can not be goroot")
+	}
+
+	return list[0], nil
+}
+
 func main() {
 	if len(os.Args) <= 1 {
 		fmt.Println("Usage: gitclone <repo>")
@@ -41,6 +57,11 @@ func main() {
 
 	gopath := os.Getenv("GOPATH")
 	if gopath != "" {
+		gopath, err := getFirstDir(gopath)
+		if err != nil {
+			fmt.Println(err.Error())
+			os.Exit(1)
+		}
 		dir := filepath.Join(gopath, "src", path)
 		cmd = exec.Command("git", "clone", repo, dir)
 	} else {
