@@ -11,10 +11,27 @@ import (
 	"strings"
 )
 
-func prepare(input string) (repo, path string) {
-	u, err := url.Parse(input)
+func prepare(target string) (repo, path string) {
+	if strings.Contains(target, "@") {
+		return prepareSSH(target)
+	}
+	return prepareHTTPS(target)
+}
+
+func prepareSSH(target string) (repo, path string) {
+	s := strings.Split(target, "@")[1]
+
+	path = strings.Replace(s, ":", "/", -1)
+	if strings.HasSuffix(path, ".git") {
+		path = strings.Replace(path, ".git", "", -1)
+	}
+	return target, path
+}
+
+func prepareHTTPS(target string) (repo, path string) {
+	u, err := url.Parse(target)
 	if err != nil {
-		return input, input
+		return target, target
 	}
 
 	if u.Scheme == "" {
@@ -68,6 +85,7 @@ func main() {
 		fmt.Println("You didn't set GOPATH before, so just clone directly.")
 		cmd = exec.Command("git", "clone", repo)
 	}
+	fmt.Printf("repo: %s\npath: %s\n", repo, path)
 
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
